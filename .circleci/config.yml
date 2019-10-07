@@ -75,7 +75,7 @@ jobs:
     docker:
       - image: hashicorp/terraform:latest
     steps:
-      #- setup-environment-vars
+      - setup-environment-vars
       - init-gcp       
       - run-terraform:
         command: validate
