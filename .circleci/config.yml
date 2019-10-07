@@ -10,7 +10,7 @@ commands:
     description: "Create the service account json file for authentication, and any other GCP functions for project setup."
     steps:
       - run:
-          name: set up job variables and key
+          name: Create access key file for service account 
           command: |
             echo $(env | grep -E "^GCLOUD_SERVICE_KEY_${CIRCLE_BRANCH}=" | sed "s/^GCLOUD_SERVICE_KEY_${CIRCLE_BRANCH}=//") > ${HOME}/gcloud-service-key.json
             
@@ -18,7 +18,7 @@ commands:
     description: "Create the service account json file for authentication,and set the project id from CircleCI variables."
     steps:
       - run:
-          name: set up job variables and key
+          name: Create terraform bucket
           command: |
             gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
             gcloud config set project $GOOGLE_PROJECT_ID   
@@ -40,6 +40,7 @@ commands:
             export TF_VAR_cloudsql_db_name="${CLOUDSQL_DB}"
             export TF_VAR_cloudsql_username="${CLOUDSQL_USERNAME}"
             export TF_VAR_cloudsql_password="${CLOUDSQL_PASSWORD}"
+            env
 
   run-terraform:
     description: "Run Terraform commands."
