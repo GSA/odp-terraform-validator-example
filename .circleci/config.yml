@@ -31,9 +31,10 @@ commands:
       - run:
           name: Export required environment variables.
           command: |
+            export GOOGLE_PROJECT_ID=$(env | awk -F= "/^GOOGLE_PROJECT_ID_${CIRCLE_BRANCH}=/ {print \$2}")
             cat \<<EOF >> $BASH_ENV
             #GCP Specific vars
-            export GOOGLE_PROJECT_ID=$(env | awk -F= "/^GOOGLE_PROJECT_ID_${CIRCLE_BRANCH}=/ {print \$2}")
+            export GOOGLE_PROJECT_ID=${GOOGLE_PROJECT_ID}
             #Terraform backend variables
             export STATE_BUCKET=tf-${GOOGLE_PROJECT_ID}-${CIRCLE_PROJECT_REPONAME}
             export STATE_PREFIX=terraform/state/odp-tf-validator-example-${CIRCLE_BRANCH}
@@ -57,6 +58,7 @@ commands:
           command: |
             . ${BASH_ENV}
             echo "State bucket = ${STATE_BUCKET}"
+            ls ${HOME}
             cd ${HOME}/${CIRCLE_BRANCH}
             terraform init -backend-config="bucket=${STATE_BUCKET} prefix=${STATE_PREFIX}"
             terraform << parameters.command >> -input=false          
