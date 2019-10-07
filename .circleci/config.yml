@@ -12,6 +12,7 @@ commands:
       - run:
           name: Create access key file for service account 
           command: |
+            . ${BASH_ENV}
             echo $(env | grep -E "^GCLOUD_SERVICE_KEY_${CIRCLE_BRANCH}=" | sed "s/^GCLOUD_SERVICE_KEY_${CIRCLE_BRANCH}=//") > ${HOME}/gcloud-service-key.json
             
   prepare-terraform-bucket:
@@ -20,6 +21,7 @@ commands:
       - run:
           name: Create terraform bucket
           command: |
+            . ${BASH_ENV}
             env
             gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
             echo $GOOGLE_PROJECT_ID 
@@ -31,6 +33,7 @@ commands:
       - run:
           name: Export required environment variables.
           command: |
+            cat \<<EOF >> $BASH_ENV
             #GCP Specific vars
             export GOOGLE_PROJECT_ID=$(env | awk -F= "/^GOOGLE_PROJECT_ID_${CIRCLE_BRANCH}=/ {print \$2}")
             #Terraform backend variables
@@ -42,6 +45,7 @@ commands:
             export TF_VAR_cloudsql_db_name="${CLOUDSQL_DB}"
             export TF_VAR_cloudsql_username="${CLOUDSQL_USERNAME}"
             export TF_VAR_cloudsql_password="${CLOUDSQL_PASSWORD}"
+            EOF
             env
 
   run-terraform:
@@ -54,11 +58,12 @@ commands:
       - run:
           name: Run Terraform commands.
           command: |
+            . ${BASH_ENV}
             echo "State bucket = ${STATE_BUCKET}"
             cd ${CIRCLE_BRANCH} && terraform init -backend-config="bucket=${STATE_BUCKET} prefix=${STATE_PREFIX}" && terraform << parameters.command >> -input=false          
 jobs: 
 
-  gcp_setup:
+  setup:
     docker:
       - image: google/cloud-sdk
     steps:
@@ -70,7 +75,7 @@ jobs:
     docker:
       - image: hashicorp/terraform:latest
     steps:
-      - setup-environment-vars
+      #- setup-environment-vars
       - init-gcp       
       - run-terraform:
         command: validate
@@ -86,7 +91,7 @@ workflows:
   version: 2.1
   terraform_example:
     jobs:
-      - gcp_setup
+      - setup
       - terraform:
           requires:
             - gcp_setup          
