@@ -25,6 +25,7 @@ commands:
             echo "export STATE_BUCKET=tf.state.${GOOGLE_PROJECT_ID}.${CIRCLE_PROJECT_REPONAME}" >> $BASH_ENV 
             echo "export STATE_PREFIX=terraform/state/odp-tf-validator-example-${CIRCLE_BRANCH}" >> $BASH_ENV
             #Setup the bucket for the Terraform state
+            . "${BASH_ENV}"
             gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
             gcloud config set project $GOOGLE_PROJECT_ID   
             gsutil mb gs://${STATE_BUCKET} || true            
