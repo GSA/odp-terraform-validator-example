@@ -15,10 +15,22 @@ commands:
             echo $(env | grep -E "^GCLOUD_SERVICE_KEY_${CIRCLE_BRANCH}=" | sed "s/^GCLOUD_SERVICE_KEY_${CIRCLE_BRANCH}=//") > ${HOME}/gcloud-service-key.json
             export GOOGLE_PROJECT_ID=$(env | awk -F= "/^GOOGLE_PROJECT_ID_${CIRCLE_BRANCH}=/ {print \$2}")
             echo "export GOOGLE_PROJECT_ID='$GOOGLE_PROJECT_ID'" >> $BASH_ENV
-  environment_vars:
+  prepare-terraform-bucket:
+    description: "Create the service account json file for authentication,and set the project id from CircleCI variables."
+    steps:
+      - run:
+          name: set up job variables and key
+          command: |
+            #Using '.' vs '-' as it increases character count in name.  You can have up to 222 characters when separating up to 63 characters by a '.'.
+            echo "export STATE_BUCKET=tf.state.${GOOGLE_PROJECT_ID}.${CIRCLE_PROJECT_REPONAME}" >> $BASH_ENV 
+            echo "export STATE_PREFIX=terraform/state/odp-tf-validator-example-${CIRCLE_BRANCH}" >> $BASH_ENV
+            #Setup the bucket for the Terraform state
+            gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
+            gcloud config set project $GOOGLE_PROJECT_ID   
+            gsutil mb gs://${STATE_BUCKET} || true            
+  environment-vars:
     description: "Setup environment variables."
-    parameters:
-      steps:
+    steps:
       - run:
           name: Run Terraform commands.
           command: |
@@ -26,11 +38,10 @@ commands:
             . "${BASH_ENV}"
             export TF_VAR_project_id=${GOOGLE_PROJECT_ID}
             export TF_VAR_environment=${CIRCLE_BRANCH}
-            export TF_VAR_notification_email="$NOTIFICATION_EMAIL"            
             export TF_VAR_cloudsql_db_name="${CLOUDSQL_DB}"
             export TF_VAR_cloudsql_username="${CLOUDSQL_USERNAME}"
             export TF_VAR_cloudsql_password="${CLOUDSQL_PASSWORD}"
-            export TF_VAR_default_firewall_rule="${DEFAULT_FIREWALL_RULE}"
+
   terraform:
     description: "Run Terraform commands."
     parameters:
@@ -41,33 +52,26 @@ commands:
       - run:
           name: Run Terraform commands.
           command: |
-            cd ${CIRCLE_BRANCH} && terraform init -backend-config="bucket=${STATE_BUCKET}" && terraform << parameters.to >> -input=false          
+            cd ${CIRCLE_BRANCH} && terraform init -backend-config="bucket=${STATE_BUCKET} prefix=${STATE_PREFIX}" && terraform << parameters.to >> -input=false          
 jobs: 
 
   gcp_setup:
     docker:
       - image: google/cloud-sdk
-    steps:
-      - attach_workspace:
-          at: /tmp/workspace
       - set-gcp-init-vars
-      - install-gcp-sdk-nongoogle
-      - run:
-          name: create terraform state bucket
-          command: |
-            gsutil mb gs://gcp-terraform-state-$GOOGLE_PROJECT_ID || true
+      - prepare-terraform-bucket
+
   terraform:
     docker:
       - image: hashicorp/terraform:latest
     steps:
-      - attach_workspace:
-          at: /tmp/workspace
-      - set-gcp-init-vars
-
-      - run:
-          name: create terraform state bucket
-          command: |
-            gsutil mb gs://gcp-terraform-state-$GOOGLE_PROJECT_ID || true
+      - environment-vars
+      - terraform:
+        command: validate
+      - terraform:
+        command: plan
+      - terraform:
+        command: apply        
 
  
 
