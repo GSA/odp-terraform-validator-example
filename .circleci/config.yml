@@ -94,4 +94,4 @@ workflows:
       - setup
       - terraform:
           requires:
-            - gcp_setup          
+            - setup          
