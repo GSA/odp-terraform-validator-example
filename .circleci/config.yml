@@ -22,9 +22,7 @@ commands:
           name: Create terraform bucket
           command: |
             . ${BASH_ENV}
-            env
             gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
-            echo $GOOGLE_PROJECT_ID 
             gcloud config set project $GOOGLE_PROJECT_ID   
             gsutil mb gs://${STATE_BUCKET} || true            
   setup-environment-vars:
@@ -46,7 +44,6 @@ commands:
             export TF_VAR_cloudsql_username="${CLOUDSQL_USERNAME}"
             export TF_VAR_cloudsql_password="${CLOUDSQL_PASSWORD}"
             EOF
-            env
 
   run-terraform:
     description: "Run Terraform commands."
@@ -60,7 +57,7 @@ commands:
           command: |
             . ${BASH_ENV}
             echo "State bucket = ${STATE_BUCKET}"
-            cd ${CIRCLE_BRANCH} && terraform init -backend-config="bucket=${STATE_BUCKET} prefix=${STATE_PREFIX}" && terraform << parameters.command >> -input=false          
+            cd ~/${CIRCLE_BRANCH} && terraform init -backend-config="bucket=${STATE_BUCKET} prefix=${STATE_PREFIX}" && terraform << parameters.command >> -input=false          
 jobs: 
 
   setup:
@@ -75,6 +72,7 @@ jobs:
     docker:
       - image: hashicorp/terraform:latest
     steps:
+      - checkout
       - setup-environment-vars
       - init-gcp       
       - run-terraform:
