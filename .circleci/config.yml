@@ -21,8 +21,7 @@ commands:
       - run:
           name: set up job variables and key
           command: |
-            #Using '.' vs '-' as it increases character count in name.  You can have up to 222 characters when separating up to 63 characters by a '.'.
-            echo "export STATE_BUCKET=tf.state.${GOOGLE_PROJECT_ID}.${CIRCLE_PROJECT_REPONAME}" >> $BASH_ENV 
+            echo "export STATE_BUCKET=tf-${GOOGLE_PROJECT_ID}-${CIRCLE_PROJECT_REPONAME}" >> $BASH_ENV 
             echo "export STATE_PREFIX=terraform/state/odp-tf-validator-example-${CIRCLE_BRANCH}" >> $BASH_ENV
             #Setup the bucket for the Terraform state
             . "${BASH_ENV}"
