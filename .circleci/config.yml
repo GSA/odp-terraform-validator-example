@@ -58,6 +58,7 @@ jobs:
   gcp_setup:
     docker:
       - image: google/cloud-sdk
+    steps:
       - set-gcp-init-vars
       - prepare-terraform-bucket
 
