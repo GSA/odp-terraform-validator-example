@@ -31,7 +31,6 @@ commands:
           command: |
             #GCP Specific vars
             export GOOGLE_PROJECT_ID=$(env | awk -F= "/^GOOGLE_PROJECT_ID_${CIRCLE_BRANCH}=/ {print \$2}")
-            export GOOGLE_PROJECT_ID=${GOOGLE_PROJECT_ID}
             #Terraform backend variables
             export STATE_BUCKET=tf-${GOOGLE_PROJECT_ID}-${CIRCLE_PROJECT_REPONAME}
             export STATE_PREFIX=terraform/state/odp-tf-validator-example-${CIRCLE_BRANCH}
@@ -60,7 +59,6 @@ jobs:
     docker:
       - image: google/cloud-sdk
     steps:
-
       - setup-environment-vars
       - init-gcp      
       - prepare-terraform-bucket
@@ -69,9 +67,8 @@ jobs:
     docker:
       - image: hashicorp/terraform:latest
     steps:
-      - init-gcp
       - setup-environment-vars
-      - init-gcp      
+      - init-gcp       
       - run-terraform:
         command: validate
       - run-terraform:
