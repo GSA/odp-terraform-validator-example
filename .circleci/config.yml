@@ -6,25 +6,20 @@ version: 2.1
 # what order the jobs run in and what depends on what.
 
 commands:
-  set-gcp-init-vars:
-    description: "Create the service account json file for authentication,and set the project id from CircleCI variables."
+  init-gcp:
+    description: "Create the service account json file for authentication, and any other GCP functions for project setup."
     steps:
       - run:
           name: set up job variables and key
           command: |
             echo $(env | grep -E "^GCLOUD_SERVICE_KEY_${CIRCLE_BRANCH}=" | sed "s/^GCLOUD_SERVICE_KEY_${CIRCLE_BRANCH}=//") > ${HOME}/gcloud-service-key.json
-            export GOOGLE_PROJECT_ID=$(env | awk -F= "/^GOOGLE_PROJECT_ID_${CIRCLE_BRANCH}=/ {print \$2}")
-            echo "export GOOGLE_PROJECT_ID='$GOOGLE_PROJECT_ID'" >> $BASH_ENV
+            
   prepare-terraform-bucket:
     description: "Create the service account json file for authentication,and set the project id from CircleCI variables."
     steps:
       - run:
           name: set up job variables and key
           command: |
-            echo "export STATE_BUCKET=tf-${GOOGLE_PROJECT_ID}-${CIRCLE_PROJECT_REPONAME}" >> $BASH_ENV 
-            echo "export STATE_PREFIX=terraform/state/odp-tf-validator-example-${CIRCLE_BRANCH}" >> $BASH_ENV
-            #Setup the bucket for the Terraform state
-            . "${BASH_ENV}"
             gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
             gcloud config set project $GOOGLE_PROJECT_ID   
             gsutil mb gs://${STATE_BUCKET} || true            
@@ -32,10 +27,15 @@ commands:
     description: "Setup environment variables."
     steps:
       - run:
-          name: Run Terraform commands.
+          name: Export required environment variables.
           command: |
-            #Load CIRCLE  environment variables as bash environment variables
-            . "${BASH_ENV}"
+            #GCP Specific vars
+            export GOOGLE_PROJECT_ID=$(env | awk -F= "/^GOOGLE_PROJECT_ID_${CIRCLE_BRANCH}=/ {print \$2}")
+            export GOOGLE_PROJECT_ID=${GOOGLE_PROJECT_ID}
+            #Terraform backend variables
+            export STATE_BUCKET=tf-${GOOGLE_PROJECT_ID}-${CIRCLE_PROJECT_REPONAME}
+            export STATE_PREFIX=terraform/state/odp-tf-validator-example-${CIRCLE_BRANCH}
+            #Terraform backend variables
             export TF_VAR_project_id=${GOOGLE_PROJECT_ID}
             export TF_VAR_environment=${CIRCLE_BRANCH}
             export TF_VAR_cloudsql_db_name="${CLOUDSQL_DB}"
@@ -52,7 +52,7 @@ commands:
       - run:
           name: Run Terraform commands.
           command: |
-            echo "State bueck = ${STATE_BUCKET}"
+            echo "State bucket = ${STATE_BUCKET}"
             cd ${CIRCLE_BRANCH} && terraform init -backend-config="bucket=${STATE_BUCKET} prefix=${STATE_PREFIX}" && terraform << parameters.command >> -input=false          
 jobs: 
 
@@ -60,16 +60,18 @@ jobs:
     docker:
       - image: google/cloud-sdk
     steps:
-      - set-gcp-init-vars
+
+      - setup-environment-vars
+      - init-gcp      
       - prepare-terraform-bucket
 
   terraform:
     docker:
       - image: hashicorp/terraform:latest
     steps:
-      - checkout    
-      - set-gcp-init-vars
+      - init-gcp
       - setup-environment-vars
+      - init-gcp      
       - run-terraform:
         command: validate
       - run-terraform:
