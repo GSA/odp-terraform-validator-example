@@ -52,7 +52,7 @@ commands:
       - run:
           name: Run Terraform commands.
           command: |
-            echo ${STATE_BUCKET}
+            echo "State bueck = ${STATE_BUCKET}"
             cd ${CIRCLE_BRANCH} && terraform init -backend-config="bucket=${STATE_BUCKET} prefix=${STATE_PREFIX}" && terraform << parameters.command >> -input=false          
 jobs: 
 
