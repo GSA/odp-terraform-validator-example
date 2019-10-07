@@ -59,7 +59,7 @@ commands:
             . ${BASH_ENV}
             echo "State bucket = ${STATE_BUCKET}"
             cd ${CIRCLE_BRANCH}
-            terraform init -backend-config="bucket=${STATE_BUCKET} prefix=${STATE_PREFIX}"
+            terraform init -backend-config="bucket=${STATE_BUCKET}" -backend-config="prefix=${STATE_PREFIX}"
             terraform << parameters.command >> -input=false          
 jobs: 
 
