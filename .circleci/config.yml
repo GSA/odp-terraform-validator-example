@@ -21,7 +21,7 @@ commands:
       - run:
           name: set up job variables and key
           command: |
-            echo "export STATE_BUCKET=tf-${GOOGLE_PROJECT_ID}-${CIRCLE_PROJECT_REPONAME}" >> $BASH_ENV 
+            echo "export STATE_BUCKET=tf.${GOOGLE_PROJECT_ID}.${CIRCLE_PROJECT_REPONAME}" >> $BASH_ENV 
             echo "export STATE_PREFIX=terraform/state/odp-tf-validator-example-${CIRCLE_BRANCH}" >> $BASH_ENV
             #Setup the bucket for the Terraform state
             . "${BASH_ENV}"
