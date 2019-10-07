@@ -28,7 +28,7 @@ commands:
             gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
             gcloud config set project $GOOGLE_PROJECT_ID   
             gsutil mb gs://${STATE_BUCKET} || true            
-  environment-vars:
+  setup-environment-vars:
     description: "Setup environment variables."
     steps:
       - run:
@@ -42,7 +42,7 @@ commands:
             export TF_VAR_cloudsql_username="${CLOUDSQL_USERNAME}"
             export TF_VAR_cloudsql_password="${CLOUDSQL_PASSWORD}"
 
-  terraform:
+  run-terraform:
     description: "Run Terraform commands."
     parameters:
       command:
@@ -66,12 +66,12 @@ jobs:
     docker:
       - image: hashicorp/terraform:latest
     steps:
-      - environment-vars
-      - terraform:
+      - setup-environment-vars
+      - run-terraform:
         command: validate
-      - terraform:
+      - run-terraform:
         command: plan
-      - terraform:
+      - run-terraform:
         command: apply        
 
  
