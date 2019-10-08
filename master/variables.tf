@@ -28,23 +28,5 @@ variable "cloudsql_password" {
   type = "string"
 }
 
-#App Engine Firewall Rules
-
-variable "default_firewall_rule" {
-  type = "string"
-}
-
-
-#Monitoring Variables
-
-variable "notification_email" {
-  type = "string"
-}
-
-variable "log_monitoring" {
-  description = "Configures log monitoring"
-  default = []
-  type = "list"
-}
 
 
