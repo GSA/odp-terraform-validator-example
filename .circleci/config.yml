@@ -124,6 +124,9 @@ jobs:
       - image: hashicorp/terraform:latest
     steps:
       - checkout
+      - run:
+        name: Install curl for curling purposes
+        command: apt-get install curl -y
       - install-gcp-sdk:
         sdk_version: "258"
       - setup-environment-vars
