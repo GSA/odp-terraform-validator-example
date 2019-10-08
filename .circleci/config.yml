@@ -127,7 +127,7 @@ jobs:
       - run:
           name: Install curl for curling purposes
           command: | 
-            apk add --update curl
+            apk add --update curl python
       - install-gcp-sdk:
         sdk_version: "258"
       - setup-environment-vars
