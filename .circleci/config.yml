@@ -14,7 +14,55 @@ commands:
           command: |
             . ${BASH_ENV}
             echo $(env | grep -E "^GCLOUD_SERVICE_KEY_${CIRCLE_BRANCH}=" | sed "s/^GCLOUD_SERVICE_KEY_${CIRCLE_BRANCH}=//") > ${HOME}/gcloud-service-key.json
-            
+
+  install-gcp-sdk:
+    description: "Install the Google Cloud SDK if it is required.  None google/cloud-sdk images will most likely require this."
+    parameters:
+      sdk_version:
+        type: string
+        default: "258"    
+    steps:
+      - run:
+          name: Setup Google Cloud SDK
+          command: |   
+            echo "Installing Google Cloud SDK..."        
+            if hash gcloud 2>/dev/null
+            then
+              echo "Google Cloud already installed..."
+            else
+              export GCLOUD_SDK_VERSION=<< parameters.sdk_version >>
+              curl https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-$GCLOUD_SDK_VERSION.0.0-linux-x86_64.tar.gz -o ./gcloud-sdk.tar.gz
+              tar xzf gcloud-sdk.tar.gz -C ~
+              rm gcloud-sdk.tar.gz
+              export PATH=~/google-cloud-sdk/bin:$PATH
+              echo 'export PATH=~/google-cloud-sdk/bin:$PATH' >> $BASH_ENV
+              source $BASH_ENV              
+            fi       
+  run-terraform-validator:
+    description: "Install the Google Cloud SDK if it is required.  None google/cloud-sdk images will most likely require this."
+    parameters:
+      releast:
+        type: string
+        default: "2019-06-19"    
+    steps:
+      - run:
+          name: Install Terraform Validator
+          command: |   
+            . ${BASH_ENV}
+            export POLICY_PATH=${HOME}/odp-policy-library
+            #Download the specified release of teraform-validator
+            gs://terraform-validator/releases/<< parameters.release >>/terraform-validator-linux-amd64 ${HOME}/terraform-validator
+            chmod 750 ${HOME}/terraform-validator
+            #Clone the policy library
+            cd ${HOME}
+            git clone https://github.com/GSA/odp-policy-library.git
+            cd ${HOME}/project/${CIRCLE_BRANCH}
+            # Generate a Terraform plan and convert to JSON format.
+            terraform plan --out=terraform.tfplan
+            terraform show -json ./terraform.tfplan > ./terraform.tfplan.json
+            #Validate your Terraform plan
+            ${HOME}/terraform-validator validate --policy-path=${POLICY_PATH} ./terraform.tfplan.json
+                    
   prepare-terraform-bucket:
     description: "Create the service account json file for authentication,and set the project id from CircleCI variables."
     steps:
@@ -24,7 +72,8 @@ commands:
             . ${BASH_ENV}
             gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
             gcloud config set project $GOOGLE_PROJECT_ID   
-            gsutil mb gs://${STATE_BUCKET} || true            
+            gsutil mb gs://${STATE_BUCKET} || true     
+
   setup-environment-vars:
     description: "Setup environment variables."
     steps:
@@ -57,7 +106,6 @@ commands:
           name: Run Terraform commands.
           command: |
             . ${BASH_ENV}
-            echo "State bucket = ${STATE_BUCKET}"
             cd ${CIRCLE_BRANCH}
             terraform init -backend-config="bucket=${STATE_BUCKET}" -backend-config="prefix=${STATE_PREFIX}"
             terraform << parameters.command >>          
@@ -76,8 +124,11 @@ jobs:
       - image: hashicorp/terraform:latest
     steps:
       - checkout
+      - install-gcp-sdk:
+        sdk_version: "258"
       - setup-environment-vars
-      - init-gcp       
+      - init-gcp    
+      - run-terraform-validator   
       - run-terraform:
         command: validate
       - run-terraform:
