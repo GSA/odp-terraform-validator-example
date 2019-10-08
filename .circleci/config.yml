@@ -52,7 +52,7 @@ commands:
             export POLICY_PATH=${HOME}/odp-policy-library
             #Download the specified release of teraform-validator
             gsutil cp gs://gsa-odp-terraform-validator/releases/<< parameters.release >>/terraform-validator ${HOME}/terraform-validator
-            chmod 755 ${HOME}/terraform-validator
+            chmod 750 ${HOME}/terraform-validator
             #Clone the policy library
             cd ${HOME}
             git clone https://github.com/GSA/odp-policy-library.git
@@ -63,9 +63,6 @@ commands:
             terraform show -json ./terraform.tfplan > ./terraform.tfplan.json
             cat ./terraform.tfplan.json
             #Validate your Terraform plan
-            ls ${HOME}
-            stat ${HOME}/terraform-validator
-            ${HOME}/terraform-validator
             ${HOME}/terraform-validator validate --policy-path=${POLICY_PATH} ./terraform.tfplan
                     
   prepare-terraform-bucket:
