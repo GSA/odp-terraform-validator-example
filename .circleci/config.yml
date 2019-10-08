@@ -127,7 +127,7 @@ jobs:
       - run:
           name: Install curl for curling purposes
           command: | 
-            apt-get install curl -y
+            apk add --update curl
       - install-gcp-sdk:
         sdk_version: "258"
       - setup-environment-vars
