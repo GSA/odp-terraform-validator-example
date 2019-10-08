@@ -51,7 +51,7 @@ commands:
             . ${BASH_ENV}
             export POLICY_PATH=${HOME}/odp-policy-library
             #Download the specified release of teraform-validator
-            gs://terraform-validator/releases/<< parameters.release >>/terraform-validator-linux-amd64 ${HOME}/terraform-validator
+            gsutil cp gs://terraform-validator/releases/<< parameters.release >>/terraform-validator-linux-amd64 ${HOME}/terraform-validator
             chmod 750 ${HOME}/terraform-validator
             #Clone the policy library
             cd ${HOME}
