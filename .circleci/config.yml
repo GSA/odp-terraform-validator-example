@@ -95,6 +95,8 @@ commands:
             export TF_VAR_cloudsql_db_name="${CLOUDSQL_DB}"
             export TF_VAR_cloudsql_username="${CLOUDSQL_USERNAME}"
             export TF_VAR_cloudsql_password="${CLOUDSQL_PASSWORD}"
+            #Terraform Validator variables 
+            export export GOOGLE_APPLICATION_CREDENTIALS=${HOME}/gcloud-service-key.json
             EOF
 
   run-terraform:
