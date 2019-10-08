@@ -63,6 +63,7 @@ commands:
             terraform show -json ./terraform.tfplan > ./terraform.tfplan.json
             cat ./terraform.tfplan.json
             #Validate your Terraform plan
+            ls ${HOME}
             ${HOME}/terraform-validator validate --policy-path=${POLICY_PATH} ./terraform.tfplan
                     
   prepare-terraform-bucket:
