@@ -58,6 +58,7 @@ commands:
             git clone https://github.com/GSA/odp-policy-library.git
             cd ${HOME}/project/${CIRCLE_BRANCH}
             # Generate a Terraform plan and convert to JSON format.
+            terraform init
             terraform plan --out=terraform.tfplan
             terraform show -json ./terraform.tfplan > ./terraform.tfplan.json
             #Validate your Terraform plan
