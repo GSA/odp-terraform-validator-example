@@ -61,9 +61,8 @@ commands:
             terraform init -backend-config="bucket=${STATE_BUCKET}" -backend-config="prefix=${STATE_PREFIX}"
             terraform plan --out=terraform.tfplan
             terraform show -json ./terraform.tfplan > ./terraform.tfplan.json
-            cat ./terraform.tfplan.json
             #Validate your Terraform plan
-            ${HOME}/terraform-validator validate --policy-path=${POLICY_PATH} ./terraform.tfplan
+            ${HOME}/terraform-validator validate --policy-path=${POLICY_PATH} ./terraform.tfplan.json
                     
   prepare-terraform-bucket:
     description: "Create the service account json file for authentication,and set the project id from CircleCI variables."
