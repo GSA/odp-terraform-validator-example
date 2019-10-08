@@ -41,7 +41,7 @@ commands:
   run-terraform-validator:
     description: "Install the Google Cloud SDK if it is required.  None google/cloud-sdk images will most likely require this."
     parameters:
-      releast:
+      release:
         type: string
         default: "2019-06-19"    
     steps:
