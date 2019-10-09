@@ -49,7 +49,7 @@ commands:
           name: Install Terraform Validator
           command: |   
             . ${BASH_ENV}
-            export $CONSTRAINTS=appengine
+            export CONSTRAINTS=appengine
             export POLICY_PATH=${HOME}/odp-policy-library
             #Download the specified release of teraform-validator
             gsutil cp gs://gsa-odp-terraform-validator/releases/<< parameters.release >>/terraform-validator ${HOME}/terraform-validator
