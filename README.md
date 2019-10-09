@@ -4,7 +4,7 @@ Example Terraform project that runs the Forseti Terraform Validator within it's 
 ## Table of Contents <a name="s2"></a>
 
 * [Overview](#s1)
-* [Table of Conents](#s2)
+* [Table of Contents](#s2)
 * [Project Contents](#s3)
 * [Project Setup](#s4)
 * [Modules](#s5)
