@@ -50,7 +50,7 @@ commands:
           command: |   
             . ${BASH_ENV}
             export CONSTRAINTS=appengine
-            export POLICY_PATH=${HOME}/odp-policy-library
+            export POLICY_PATH=${HOME}/policy-library
             #Download the specified release of teraform-validator
             gsutil cp gs://gsa-odp-terraform-validator/releases/<< parameters.release >>/terraform-validator ${HOME}/terraform-validator
             chmod 750 ${HOME}/terraform-validator
