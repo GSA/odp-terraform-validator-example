@@ -49,13 +49,18 @@ commands:
           name: Install Terraform Validator
           command: |   
             . ${BASH_ENV}
+            export $CONSTRAINTS=appengine
             export POLICY_PATH=${HOME}/odp-policy-library
             #Download the specified release of teraform-validator
             gsutil cp gs://gsa-odp-terraform-validator/releases/<< parameters.release >>/terraform-validator ${HOME}/terraform-validator
             chmod 750 ${HOME}/terraform-validator
             #Clone the policy library
             cd ${HOME}
-            git clone https://github.com/GSA/odp-policy-library.git
+            git clone https://github.com/GSA/odp-forseti-constraint-library.git
+            git clone https://github.com/forseti-security/policy-library.git
+            cp  ${HOME}/odp-forseti-constraint-library/constraints/${CONSTRAINTS}/*.yaml ${HOME}/policy-library/policies/constraints/
+
+            cp ${HOME}/
             cd ${HOME}/project/${CIRCLE_BRANCH}
             # Generate a Terraform plan and convert to JSON format.
             terraform init -backend-config="bucket=${STATE_BUCKET}" -backend-config="prefix=${STATE_PREFIX}"
@@ -87,7 +92,7 @@ commands:
             export GOOGLE_PROJECT_ID=${GOOGLE_PROJECT_ID}
             #Terraform backend variables
             export STATE_BUCKET=tf-${GOOGLE_PROJECT_ID}-${CIRCLE_PROJECT_REPONAME}
-            export STATE_PREFIX=terraform/state/odp-tf-validator-example-${CIRCLE_BRANCH}
+            export STATE_PREFIX=terraform/state/${CIRCLE_BRANCH}
             #Terraform backend variables
             export TF_VAR_project_id=${GOOGLE_PROJECT_ID}
             export TF_VAR_environment=${CIRCLE_BRANCH}
@@ -95,7 +100,7 @@ commands:
             export TF_VAR_cloudsql_username="${CLOUDSQL_USERNAME}"
             export TF_VAR_cloudsql_password="${CLOUDSQL_PASSWORD}"
             #Terraform Validator variables 
-            export export GOOGLE_APPLICATION_CREDENTIALS=${HOME}/gcloud-service-key.json
+            export GOOGLE_APPLICATION_CREDENTIALS=${HOME}/gcloud-service-key.json
             EOF
 
   run-terraform:
