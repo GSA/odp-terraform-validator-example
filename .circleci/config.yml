@@ -59,8 +59,6 @@ commands:
             git clone https://github.com/GSA/odp-forseti-constraint-library.git
             git clone https://github.com/forseti-security/policy-library.git
             cp  ${HOME}/odp-forseti-constraint-library/constraints/${CONSTRAINTS}/*.yaml ${HOME}/policy-library/policies/constraints/
-
-            cp ${HOME}/
             cd ${HOME}/project/${CIRCLE_BRANCH}
             # Generate a Terraform plan and convert to JSON format.
             terraform init -backend-config="bucket=${STATE_BUCKET}" -backend-config="prefix=${STATE_PREFIX}"
