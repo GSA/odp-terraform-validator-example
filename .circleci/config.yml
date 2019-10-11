@@ -43,7 +43,7 @@ commands:
     parameters:
       release:
         type: string
-        default: "2019-10-8"    
+        default: "2019-10-10"    
     steps:
       - run:
           name: Install Terraform Validator
@@ -52,7 +52,7 @@ commands:
             export CONSTRAINTS=appengine
             export POLICY_PATH=${HOME}/policy-library
             #Download the specified release of teraform-validator
-            gsutil cp gs://gsa-odp-terraform-validator/releases/<< parameters.release >>/terraform-validator ${HOME}/terraform-validator
+            gsutil cp gs://terraform-validator/releases/<< parameters.release >>/terraform-validator-linux-amd64 ${HOME}/terraform-validator
             chmod 750 ${HOME}/terraform-validator
             #Clone the policy library
             cd ${HOME}
