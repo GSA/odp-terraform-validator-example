@@ -62,4 +62,4 @@ See Module [README.md](https://github.com/GSA/odp_tf_google_sql/blob/master/READ
 
 ## CircleCI Configuration <a name="s6"></a>
 
-See CircleCI README.md for details
+See CircleCI [README.md](https://github.com/GSA/odp-tf-validator-example/blob/master/.circleci/README.md) for details
