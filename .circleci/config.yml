@@ -44,12 +44,15 @@ commands:
       release:
         type: string
         default: "2019-10-10"    
+      constraint_path:
+        type: string
+        default: "appengine"
     steps:
       - run:
           name: Install Terraform Validator
           command: |   
             . ${BASH_ENV}
-            export CONSTRAINTS=appengine
+            export CONSTRAINTS=<< parameters.constraint_path >>
             export POLICY_PATH=${HOME}/policy-library
             #Download the specified release of teraform-validator
             gsutil cp gs://terraform-validator/releases/<< parameters.release >>/terraform-validator-linux-amd64 ${HOME}/terraform-validator
@@ -104,7 +107,7 @@ commands:
   run-terraform:
     description: "Run Terraform commands."
     parameters:
-      command:
+      run_command:
         type: string
         default: "validate"
     steps:
@@ -114,7 +117,7 @@ commands:
             . ${BASH_ENV}
             cd ${CIRCLE_BRANCH}
             terraform init -backend-config="bucket=${STATE_BUCKET}" -backend-config="prefix=${STATE_PREFIX}"
-            terraform << parameters.command >>          
+            terraform << parameters.run_command >>          
 jobs: 
 
   setup:
@@ -140,20 +143,25 @@ jobs:
       - init-gcp    
       - run-terraform-validator   
       - run-terraform:
-        command: validate
+        run_command: validate
       - run-terraform:
-        command: plan -input=false 
+        run_command: plan -input=false 
       - run-terraform:
-        command: apply -input=false         
+        run_command: apply -input=false         
 
  
 
 #These are the workflows that define what CircleCI actually does.
 workflows:
   version: 2.1
-  terraform_example:
-    jobs:
-      - setup
+  terraform_example:    
+    jobs:  
+      - setup:
+          filters:
+            branches:
+              only:
+                # This is the list of branches which will trigger a terraform run.
+                - master         
       - terraform:
           requires:
             - setup          
