@@ -47,15 +47,19 @@ With Terraform you can set / override any Terraform variables using the TF_VAR_<
 This works great for CI Pipelines, and it is the method we employ in this project's `.circleci` folder.
 
 * Example setting the region variable :
+
   `export TF_VAR_region="us-east1"`
 
 You can also set your variables in a file named .tfvars or .tfvars.json.  You can specify your variables file using the command line:
+
 `terraform apply -var-file="testing.tfvars"`
 
 ### Remote State 
 
 You can setup or remove the configration for a remote state manually by editing or removing the backend.cfg file.
+
 You can alternatively configure the `bucket` and `prefix varariables from the commandline allowing for variable interpolation:
+
 `terraform init -backend-config="bucket=${STATE_BUCKET}" -backend-config="prefix=${STATE_PREFIX}"`
 
 
