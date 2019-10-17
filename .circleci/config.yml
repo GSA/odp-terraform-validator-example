@@ -156,7 +156,7 @@ jobs:
       - setup-environment-vars
       - init-gcp    
       - run-terraform-validator:  
-        terraform_path: ${CIRCLE_BRANCH}
+        terraform_path: "$CIRCLE_BRANCH"
       - run-terraform:
         run_command: validate
       - run-terraform:
