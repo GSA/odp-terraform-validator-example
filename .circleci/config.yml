@@ -58,10 +58,7 @@ commands:
         default: "2019-10-10"    
       constraint_path:
         type: string
-        default: "appengine"
-      terraform_path:
-        type: string
-        default: "terraform"        
+        default: "appengine"   
     steps:
       - run:
           name: Install Terraform Validator
@@ -77,7 +74,7 @@ commands:
             git clone https://github.com/GSA/odp-forseti-constraint-library.git
             git clone https://github.com/forseti-security/policy-library.git
             cp  ${HOME}/odp-forseti-constraint-library/constraints/${CONSTRAINTS}/*.yaml ${HOME}/policy-library/policies/constraints/
-            cd ${HOME}/project/<< parameters.terraform_path >>
+            cd ${HOME}/project/${TERRAFORM_PATH}
             # Generate a Terraform plan and convert to JSON format.
             terraform init -backend-config="bucket=${STATE_BUCKET}" -backend-config="prefix=${STATE_PREFIX}"
             terraform plan --out=terraform.tfplan
@@ -115,6 +112,7 @@ commands:
             export TF_VAR_cloudsql_password="${CLOUDSQL_PASSWORD}"
             #Terraform Validator variables 
             export GOOGLE_APPLICATION_CREDENTIALS=${HOME}/gcloud-service-key.json
+            export TERRAFORM_PATH=${CIRCLE_BRANCH}
             EOF
 
   run-terraform:
@@ -155,8 +153,7 @@ jobs:
         sdk_version: "258"
       - setup-environment-vars
       - init-gcp    
-      - run-terraform-validator:  
-        terraform_path: "$CIRCLE_BRANCH"
+      - run-terraform-validator
       - run-terraform:
         run_command: validate
       - run-terraform:
