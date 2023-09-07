@@ -2,7 +2,7 @@
 
 ## Overview <a name="s1"></a> 
 
-This is an Terraform project that runs the Forseti Terraform Validator within it's CI Pipeline.
+This is a Terraform project that runs the Forseti Terraform Validator within it's CI Pipeline.
 This project can be used to as a template for creating future Terraform projects or projects that integrate Terraform into their CI Pipelines.
 
 
